@@ -1,46 +1,50 @@
-import React from 'react';
-import { Star, Calendar, Trash2, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Calendar, Trash2, Loader2, Plus, X, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getWatchlist, removeFromWatchlist } from '@/lib/watchlist';
+import { useWatchlist } from '@/contexts/WatchlistContext';
 import { getImageUrl } from '@/lib/tmdb';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { WatchlistCategory } from '@/contexts/WatchlistContext';
+import { MediaCard } from '@/components/Media/MediaCard';
 
 export const WatchlistPage = () => {
   const { user } = useAuth();
-  const [items, setItems] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const {
+    watchlists,
+    customWatchlists,
+    removeFromWatchlist,
+    moveToCategory,
+    createCustomWatchlist,
+    deleteCustomWatchlist,
+    removeFromCustomWatchlist,
+  } = useWatchlist();
 
-  React.useEffect(() => {
-    const fetchWatchlist = async () => {
-      if (!user) return;
-      try {
-        const data = await getWatchlist(user.uid);
-        setItems(data);
-      } catch (error) {
-        console.error('Error fetching watchlist:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [loading, setLoading] = React.useState(false);
+  const [newWatchlistName, setNewWatchlistName] = useState('');
+  const [showNewWatchlistInput, setShowNewWatchlistInput] = useState(false);
 
-    fetchWatchlist();
-  }, [user]);
-
-  const handleRemove = async (mediaId: number) => {
-    if (!user) return;
-    try {
-      await removeFromWatchlist(user.uid, mediaId);
-      setItems(items.filter(item => item.id !== mediaId));
-    } catch (error) {
-      console.error('Error removing from watchlist:', error);
+  const handleCreateCustomWatchlist = async () => {
+    if (newWatchlistName.trim()) {
+      await createCustomWatchlist(newWatchlistName.trim());
+      setNewWatchlistName('');
+      setShowNewWatchlistInput(false);
     }
+  };
+
+  const categories: { [key in WatchlistCategory]: string } = {
+    plan_to_watch: 'Plan to Watch',
+    watching: 'Watching',
+    completed: 'Completed',
+    dropped: 'Dropped',
   };
 
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 pt-20 px-4">
         <div className="max-w-7xl mx-auto text-center py-12">
-          <h2 className="text-3xl font-bold text-gray-900">Sign in to view your watchlist</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Sign in to view your watchlists</h2>
         </div>
       </div>
     );
@@ -57,49 +61,122 @@ export const WatchlistPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-20 px-4">
       <div className="max-w-7xl mx-auto py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Watchlist</h1>
-        
-        {items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Your watchlist is empty</p>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex">
-                  <img
-                    src={getImageUrl(item.posterPath, 'w200')}
-                    alt={item.title}
-                    className="w-32 object-cover"
-                  />
-                  <div className="p-4 flex-1">
-                    <h3 className="font-medium text-gray-900">{item.title}</h3>
-                    <div className="mt-2 space-y-2">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                        {(item.voteAverage * 10).toFixed()}%
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {new Date(item.releaseDate).getFullYear()}
-                      </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Watchlists</h1>
+
+        <Tabs defaultValue="default" className="w-full">
+          <TabsList>
+            <TabsTrigger value="default">Default Lists</TabsTrigger>
+            <TabsTrigger value="custom">Custom Lists</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="default">
+            <div className="grid grid-cols-1 gap-8">
+              {Object.entries(categories).map(([category, label]) => (
+                <div key={category} className="space-y-4">
+                  <h2 className="text-2xl font-semibold text-gray-900">{label}</h2>
+                  {watchlists[category as WatchlistCategory].length === 0 ? (
+                    <p className="text-gray-500">No items in this list</p>
+                  ) : (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {watchlists[category as WatchlistCategory].map((item) => (
+                        <div key={item.id} className="relative group">
+                          <MediaCard item={item} showType={true} />
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-2">
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                className="w-8 h-8"
+                                onClick={() => removeFromWatchlist(item.id)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="custom">
+            <div className="mb-8">
+              {showNewWatchlistInput ? (
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="text"
+                    placeholder="Enter watchlist name"
+                    value={newWatchlistName}
+                    onChange={(e) => setNewWatchlistName(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleCreateCustomWatchlist();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleCreateCustomWatchlist}>
+                    <Check className="w-4 h-4 mr-2" />
+                    Create
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setShowNewWatchlistInput(false);
+                      setNewWatchlistName('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => setShowNewWatchlistInput(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Watchlist
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-8">
+              {customWatchlists.map((watchlist) => (
+                <div key={watchlist.id} className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-semibold text-gray-900">{watchlist.name}</h2>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemove(item.id)}
-                      className="mt-4 text-red-600 hover:text-red-700"
+                      variant="destructive"
+                      onClick={() => deleteCustomWatchlist(watchlist.id)}
                     >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Remove
+                      Delete List
                     </Button>
                   </div>
+                  {watchlist.items.length === 0 ? (
+                    <p className="text-gray-500">No items in this list</p>
+                  ) : (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {watchlist.items.map((item) => (
+                        <div key={item.id} className="relative group">
+                          <MediaCard item={item} showType={true} />
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="w-8 h-8"
+                              onClick={() => removeFromCustomWatchlist(watchlist.id, item.id)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -1,25 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { AuthModal } from './AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const UserMenu = () => {
-  const { user, signOut } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, signOut, setShowAuthModal } = useAuth();
 
   if (!user) {
     return (
-      <>
-        <Button onClick={() => setShowAuthModal(true)} variant="primary" size="sm">
-          Sign In
-        </Button>
-        <AuthModal 
-          isOpen={showAuthModal} 
-          onClose={() => setShowAuthModal(false)} 
-        />
-      </>
+      <Button 
+        onClick={() => setShowAuthModal(true)} 
+        variant="primary" 
+        size="sm"
+      >
+        Sign In
+      </Button>
     );
   }
 
@@ -52,9 +48,9 @@ export const UserMenu = () => {
         </Link>
         <button
           onClick={signOut}
-          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
         >
-          <LogOut className="w-4 h-4 inline mr-2" />
+          <LogOut className="w-4 h-4 inline-block mr-2" />
           Sign Out
         </button>
       </div>

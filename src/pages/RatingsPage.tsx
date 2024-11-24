@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Calendar, Loader2 } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserRatings } from '@/lib/ratings';
 import { getImageUrl } from '@/lib/tmdb';
