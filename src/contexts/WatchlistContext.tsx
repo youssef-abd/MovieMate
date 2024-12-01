@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, deleteDoc} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from './AuthContext';
 
@@ -205,7 +205,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const isInWatchlist = (itemId: number) => {
+  const isInWatchlist = (itemId: number): boolean => {
     return Object.values(watchlists).some(categoryItems =>
       categoryItems.some(item => item.id === itemId)
     );
@@ -235,7 +235,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const rateMedia = async (mediaId: string | number, rating: number) => {
+  const rateMedia = async (mediaId: string | number, rating: number): Promise<void> => {
     if (!user) return;
 
     try {
@@ -264,7 +264,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     return ratings[mediaId];
   };
 
-  const createCustomWatchlist = async (name: string) => {
+  const createCustomWatchlist = async (name: string): Promise<void> => {
     if (!user) return;
     try {
       const customWatchlistsRef = collection(db, 'users', user.uid, 'customWatchlists');
@@ -280,7 +280,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const deleteCustomWatchlist = async (watchlistId: string) => {
+  const deleteCustomWatchlist = async (watchlistId: string): Promise<void> => {
     if (!user) return;
     try {
       const watchlistRef = doc(db, 'users', user.uid, 'customWatchlists', watchlistId);
@@ -291,7 +291,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addToCustomWatchlist = async (watchlistId: string, item: MediaItem) => {
+  const addToCustomWatchlist = async (watchlistId: string, item: MediaItem): Promise<void> => {
     if (!user) return;
     try {
       const watchlistRef = doc(db, 'users', user.uid, 'customWatchlists', watchlistId);
@@ -320,7 +320,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const removeFromCustomWatchlist = async (watchlistId: string, itemId: number) => {
+  const removeFromCustomWatchlist = async (watchlistId: string, itemId: number): Promise<void> => {
     if (!user) return;
     try {
       const watchlistRef = doc(db, 'users', user.uid, 'customWatchlists', watchlistId);

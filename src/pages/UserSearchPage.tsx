@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, UserMinus } from 'lucide-react';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { UserSearchResult } from '@/types/user';
-import { Input } from '@/components/ui/Input';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { useAuth } from '@/contexts/AuthContext';
@@ -136,7 +136,7 @@ export const UserSearchPage = () => {
 
         {user.uid !== currentUserProfile?.uid && (
           <Button
-            variant={followingStatus[user.uid] ? "outline" : "default"}
+            variant={followingStatus[user.uid] ? "secondary" : "primary"}
             size="sm"
             className="ml-4"
             onClick={(e) => handleFollowToggle(user.uid, e)}

@@ -3,23 +3,29 @@ import { MovieResult, TvResult } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
 import { Bookmark, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWatchlist } from '@/contexts/WatchlistContext';
+import { useWatchlist, WatchlistCategory } from '@/contexts/WatchlistContext';
 import { Button } from '../ui/Button';
 import { MediaDetails } from './MediaDetails';
 
 interface MediaCardProps {
   item: MovieResult | TvResult;
+  showType?: boolean;
   type?: 'movie' | 'tv' | 'anime';
+  size?: 'normal' | 'small';
 }
 
-export const MediaCard = ({ item, type }: MediaCardProps) => {
+export const MediaCard = ({ item, type, size = 'normal' }: MediaCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { user } = useAuth();
   const { addToWatchlist, removeFromWatchlist, isInWatchlist, rateMedia, getRating } = useWatchlist();
   const [showRating, setShowRating] = useState(false);
 
-  const title = 'title' in item ? item.title : item.name;
+  const getTitle = (item: MovieResult | TvResult) => {
+    if ('title' in item) return item.title;
+    return item.name;
+  };
+
   const releaseDate = 'release_date' in item ? item.release_date : item.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
   const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
@@ -32,10 +38,15 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
     e.stopPropagation();
     if (!user) return;
 
+    const mediaItem = {
+      ...item,
+      poster_path: item.poster_path || undefined
+    };
+
     if (isInWatchlistAlready) {
-      await removeFromWatchlist(item);
+      await removeFromWatchlist(item.id);
     } else {
-      await addToWatchlist(item);
+      await addToWatchlist(mediaItem, mediaType as WatchlistCategory);
     }
   };
 
@@ -50,7 +61,9 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
     <>
       <div 
         onClick={() => setShowDetails(true)}
-        className="relative block bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 cursor-pointer"
+        className={`relative block bg-white rounded-lg shadow-sm overflow-hidden transition-transform hover:scale-105 cursor-pointer ${
+          size === 'small' ? 'max-w-[140px]' : ''
+        }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
@@ -59,8 +72,8 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
       >
         <div className="relative aspect-[2/3] w-full">
           <img
-            src={getImageUrl(item.poster_path, 'w400')}
-            alt={title}
+            src={getImageUrl(item.poster_path || '', 'w400')}
+            alt={getTitle(item) ?? 'Media Item'}
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -68,9 +81,9 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
             }}
           />
           {rating && (
-            <div className="absolute top-2 right-2 bg-black/75 text-white px-2 py-1 rounded-full text-sm flex items-center">
+            <div className={`absolute top-1 right-1 bg-black/75 text-white px-1.5 py-0.5 rounded-full ${size === 'small' ? 'text-xs' : 'text-sm'} flex items-center`}>
               <svg
-                className="w-4 h-4 text-yellow-400 mr-1"
+                className={`${size === 'small' ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-400 mr-0.5`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -82,39 +95,45 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
 
           {/* Watchlist and Rating Buttons */}
           {isHovered && user && (
-            <div className="absolute bottom-2 left-2 right-2 flex gap-2">
+            <div className={`absolute bottom-1 left-1 right-1 flex gap-1 ${size === 'small' ? 'flex-col' : ''}`}>
               <Button
                 variant="secondary"
                 size="sm"
-                className={`flex items-center gap-1 ${isInWatchlistAlready ? 'bg-purple-600 text-white' : 'bg-white/90'}`}
+                className={`flex items-center gap-1 ${isInWatchlistAlready ? 'bg-purple-600 text-white' : 'bg-white/90'} ${
+                  size === 'small' ? 'text-xs px-2 py-0.5' : ''
+                }`}
                 onClick={handleWatchlistClick}
               >
-                <Bookmark className="w-4 h-4" />
+                <Bookmark className={size === 'small' ? 'w-3 h-3' : 'w-4 h-4'} />
                 {isInWatchlistAlready ? 'Saved' : 'Save'}
               </Button>
               <div className="relative">
                 <Button
                   variant="secondary"
                   size="sm"
-                  className={`flex items-center gap-1 ${userRating ? 'bg-purple-600 text-white' : 'bg-white/90'}`}
+                  className={`flex items-center gap-1 ${userRating ? 'bg-purple-600 text-white' : 'bg-white/90'} ${
+                    size === 'small' ? 'text-xs px-2 py-0.5' : ''
+                  }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowRating(!showRating);
                   }}
                 >
-                  <Star className="w-4 h-4" />
+                  <Star className={size === 'small' ? 'w-3 h-3' : 'w-4 h-4'} />
                   {userRating ? userRating : 'Rate'}
                 </Button>
                 {showRating && (
-                  <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg p-2 flex gap-1">
+                  <div className={`absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-lg p-1 flex gap-0.5 ${
+                    size === 'small' ? 'scale-75 -translate-x-2' : ''
+                  }`}>
                     {[1, 2, 3, 4, 5].map((stars) => (
                       <button
                         key={stars}
-                        className="p-1 hover:text-yellow-400"
+                        className="p-0.5 hover:text-yellow-400"
                         onClick={(e) => handleRatingClick(e, stars)}
                       >
                         <Star
-                          className={`w-5 h-5 ${userRating && userRating >= stars ? 'text-yellow-400 fill-current' : ''}`}
+                          className={`w-4 h-4 ${userRating && userRating >= stars ? 'text-yellow-400 fill-current' : ''}`}
                         />
                       </button>
                     ))}
@@ -124,12 +143,14 @@ export const MediaCard = ({ item, type }: MediaCardProps) => {
             </div>
           )}
         </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-lg line-clamp-2">{title}</h3>
-          <div className="mt-2 text-sm text-gray-600">
-            <span>{year}</span>
+        {size !== 'small' && (
+          <div className="p-4">
+            <h3 className="font-semibold text-lg line-clamp-2">{getTitle(item)}</h3>
+            <div className="mt-2 text-sm text-gray-600">
+              <span>{year}</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {showDetails && (

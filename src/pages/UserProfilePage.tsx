@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Settings, Users, Film, Tv, Star, MessageCircle, Edit } from 'lucide-react';
+import { Settings, Users, Film, Tv, Star, MessageCircle} from 'lucide-react';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserProfile } from '@/types/user';
 
 export const UserProfilePage = () => {
@@ -111,13 +111,13 @@ export const UserProfilePage = () => {
                 </div>
 
                 {isOwnProfile ? (
-                  <Button variant="outline" onClick={() => {}}>
+                  <Button variant="secondary" onClick={() => {}}>
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
                 ) : (
                   <Button 
-                    variant={isFollowing ? "outline" : "default"}
+                    variant={isFollowing ? "secondary" : "primary"}
                     onClick={handleFollowToggle}
                   >
                     {isFollowing ? 'Unfollow' : 'Follow'}

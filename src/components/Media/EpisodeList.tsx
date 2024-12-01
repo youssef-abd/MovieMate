@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWatchlist } from '@/contexts/WatchlistContext';
-import { Button } from '@/components/ui/Button';
+
 
 interface Episode {
   id: number;
@@ -43,7 +43,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ mediaId, mediaType }) 
       try {
         setLoading(true);
         const response = await fetch(
-          `https://api.themoviedb.org/3/tv/${mediaId}?api_key=${API_KEY}&append_to_response=season/1,season/2,season/3,season/4,season/5`
+          `https://api.themoviedb.org/3/${mediaType === 'anime' ? 'tv' : mediaType}/${mediaId}?api_key=${API_KEY}&append_to_response=season/1,season/2,season/3,season/4,season/5`
         );
         
         if (!response.ok) {
@@ -56,7 +56,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ mediaId, mediaType }) 
         // Process each season
         for (let i = 1; i <= data.number_of_seasons; i++) {
           const seasonResponse = await fetch(
-            `https://api.themoviedb.org/3/tv/${mediaId}/season/${i}?api_key=${API_KEY}`
+            `https://api.themoviedb.org/3/${mediaType === 'anime' ? 'tv' : mediaType}/${mediaId}/season/${i}?api_key=${API_KEY}`
           );
           if (seasonResponse.ok) {
             const seasonData = await seasonResponse.json();

@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MovieResult, TvResult } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
@@ -9,6 +9,7 @@ import { useWatchlist } from '@/contexts/WatchlistContext';
 import { Button } from '../ui/Button';
 import { EpisodeList } from './EpisodeList'; // Import EpisodeList component
 import { WatchlistCategory } from '@/contexts/WatchlistContext';
+import ReactDOM from 'react-dom';
 
 interface MediaDetailsProps {
   type: 'movie' | 'tv' | 'anime';
@@ -71,7 +72,12 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
     fetchDetails();
   }, [id, type]);
 
-  const handleClose = () => {
+  const handleClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setShowWatchlistMenu(false);
+    setShowRating(false);
     if (onClose) {
       onClose();
     }
@@ -79,13 +85,17 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
 
   if (!id) return null;
 
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/50" onClick={handleClose} />
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-50" onClick={handleClose}>
+      <div className="fixed inset-0 bg-black/50" />
       <div className="absolute inset-0 overflow-y-auto">
         <div className="min-h-full py-8 px-4">
-          <div className="relative w-full max-w-4xl mx-auto bg-white rounded-lg shadow-xl">
+          <div 
+            className="relative w-full max-w-4xl mx-auto bg-white rounded-lg shadow-xl" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
+              type="button"
               onClick={handleClose}
               className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 z-50"
               aria-label="Close details"
@@ -112,7 +122,7 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
                 <div className="w-full md:w-1/3">
                   <div className="aspect-[2/3] relative">
                     <img
-                      src={getImageUrl(details.poster_path, 'w500')}
+                      src={details.poster_path ? getImageUrl(details.poster_path, 'w500') : '/images/no-poster.png'}
                       alt={'title' in details ? details.title : details.name}
                       className="w-full h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-tr-none"
                       onError={(e) => {
@@ -188,7 +198,9 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
                                       await moveToCategory(details.id, category as WatchlistCategory);
                                     } else {
                                       await addToWatchlist({
-                                        ...details,
+                                        id: details.id,
+                                        title: 'title' in details ? details.title : details.name,
+                                        poster_path: details.poster_path ? getImageUrl(details.poster_path) : undefined,
                                         media_type: mediaType
                                       }, category as WatchlistCategory);
                                     }
@@ -218,8 +230,10 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
                                           await removeFromCustomWatchlist(watchlist.id, details.id);
                                         } else {
                                           await addToCustomWatchlist(watchlist.id, {
-                                            ...details,
-                                            media_type: mediaType
+                                            id: details.id,
+                                            title: 'title' in details ? details.title : details.name,
+                                            media_type: mediaType,
+
                                           });
                                         }
                                         setShowWatchlistMenu(false);
@@ -273,7 +287,7 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
                                 }}
                               >
                                 <Star
-                                  className={`w-6 h-6 ${getRating(details.id.toString()) && getRating(details.id.toString()) >= stars ? 'text-yellow-400 fill-current' : ''}`}
+                                  className={`w-6 h-6 ${getRating(details.id.toString()) === stars ? 'text-yellow-400 fill-current' : ''}`}
                                 />
                               </button>
                             ))}
@@ -300,20 +314,26 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
                     )}
                     <div>
                       <span className="font-semibold">Original Language:</span>{' '}
-                      {details.original_language?.toUpperCase()}
+                      {'original_language' in details ? (details.original_language as string).toUpperCase() : 'Unknown'}
                     </div>
-                    {'runtime' in details && details.runtime && (
-                      <div>
-                        <span className="font-semibold">Runtime:</span>{' '}
-                        {details.runtime} minutes
-                      </div>
-                    )}
-                    {'number_of_seasons' in details && details.number_of_seasons && (
-                      <div>
-                        <span className="font-semibold">Seasons:</span>{' '}
-                        {details.number_of_seasons}
-                      </div>
-                    )}
+                    {(() => {
+                      const movieDetails = details as { runtime?: number };
+                      return movieDetails.runtime ? (
+                        <div>
+                          <span className="font-semibold">Runtime:</span>{' '}
+                          {movieDetails.runtime} minutes
+                        </div>
+                      ) : null;
+                    })()}
+                    {(() => {
+                      const tvDetails = details as { number_of_seasons?: number };
+                      return (
+                        <div>
+                          <span className="font-semibold">Seasons:</span>{' '}
+                          {tvDetails.number_of_seasons ?? 'N/A'}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {details && (type === 'tv' || type === 'anime') && (
@@ -328,6 +348,7 @@ export const MediaDetails = ({ type, mediaId, onClose }: MediaDetailsProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

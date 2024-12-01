@@ -4,7 +4,7 @@ import { searchMulti } from '@/lib/tmdb';
 import { SearchResult } from '@/types/tmdb';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWatchlist } from '@/contexts/WatchlistContext';
+import { useWatchlist, WatchlistCategory } from '@/contexts/WatchlistContext';
 import { Button } from '@/components/ui/Button';
 
 export const SearchBar = () => {
@@ -42,12 +42,13 @@ export const SearchBar = () => {
 
     try {
       if (isInWatchlist(item.id)) {
-        await removeFromWatchlist(item);
+        await removeFromWatchlist(item.id);
       } else {
-        await addToWatchlist({
+        const mediaItem = {
           ...item,
-          media_type: item.media_type
-        });
+          poster_path: item.poster_path || undefined
+        };
+        await addToWatchlist(mediaItem, item.media_type as WatchlistCategory);
       }
     } catch (error) {
       console.error('Failed to update watchlist:', error);
@@ -106,7 +107,7 @@ export const SearchBar = () => {
                   {result.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w92${result.poster_path}`}
-                      alt={result.title || result.name}
+                      alt={result.media_type === 'movie' ? result.title : result.name}
                       className="w-12 h-18 object-cover rounded"
                     />
                   ) : (
@@ -116,7 +117,7 @@ export const SearchBar = () => {
                   )}
                   <div className="ml-4 flex-1">
                     <div className="font-medium text-gray-900">
-                      {result.title || result.name}
+                      {('title' in result) ? result.title : result.name}
                     </div>
                     <div className="text-sm text-gray-500">
                       {result.media_type.charAt(0).toUpperCase() + result.media_type.slice(1)} •{' '}

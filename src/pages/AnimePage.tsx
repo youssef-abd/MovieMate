@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { TvResult } from '@/types/tmdb';
 import { MediaCard } from '@/components/Media/MediaCard';

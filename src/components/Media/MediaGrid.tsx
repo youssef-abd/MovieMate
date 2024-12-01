@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { MovieResult, TvResult } from '@/types/tmdb';
 import { MediaCard } from './MediaCard';
 

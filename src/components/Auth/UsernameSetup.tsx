@@ -4,7 +4,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/Alert';
 
 export const UsernameSetup: React.FC = () => {

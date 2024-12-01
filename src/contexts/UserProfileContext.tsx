@@ -130,8 +130,6 @@ export const UserProfileProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     // Calculate mutual followers if user is logged in
     if (user && currentUserProfile && results.size > 0) {
-      const currentUserFollowing = new Set(currentUserProfile.following);
-      
       for (const [uid, result] of results) {
         const userProfile = await getDoc(doc(db, 'userProfiles', uid));
         if (userProfile.exists()) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { addRating, removeRating, getRating } from '@/lib/ratings';
+import { addRating, getRating, removeRating } from '@/lib/ratings';
 import type { MovieResult, TvResult } from '@/types/tmdb';
 
 interface RatingButtonProps {

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Star, Calendar, Trash2, Loader2, Plus, X, Check } from 'lucide-react';
+import { useState } from 'react';
+import {  Plus, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWatchlist } from '@/contexts/WatchlistContext';
-import { getImageUrl } from '@/lib/tmdb';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WatchlistCategory } from '@/contexts/WatchlistContext';
 import { MediaCard } from '@/components/Media/MediaCard';
+import type { MovieResult, TvResult } from '@/types/tmdb';
 
 export const WatchlistPage = () => {
   const { user } = useAuth();
@@ -15,13 +15,11 @@ export const WatchlistPage = () => {
     watchlists,
     customWatchlists,
     removeFromWatchlist,
-    moveToCategory,
     createCustomWatchlist,
     deleteCustomWatchlist,
     removeFromCustomWatchlist,
   } = useWatchlist();
 
-  const [loading, setLoading] = React.useState(false);
   const [newWatchlistName, setNewWatchlistName] = useState('');
   const [showNewWatchlistInput, setShowNewWatchlistInput] = useState(false);
 
@@ -50,14 +48,6 @@ export const WatchlistPage = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-purple-500 animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 pt-20 px-4">
       <div className="max-w-7xl mx-auto py-8">
@@ -77,21 +67,38 @@ export const WatchlistPage = () => {
                   {watchlists[category as WatchlistCategory].length === 0 ? (
                     <p className="text-gray-500">No items in this list</p>
                   ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
                       {watchlists[category as WatchlistCategory].map((item) => (
                         <div key={item.id} className="relative group">
-                          <MediaCard item={item} showType={true} />
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="flex gap-2">
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="w-8 h-8"
-                                onClick={() => removeFromWatchlist(item.id)}
+                          <MediaCard 
+                            item={item as unknown as MovieResult | TvResult} 
+                            showType={true} 
+                            size="small" 
+                          />
+                          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFromWatchlist(item.id);
+                              }}
+                            >
+                              <span className="sr-only">Remove from watchlist</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-3 w-3"
                               >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
+                                <path d="M18 6L6 18M6 6l12 12" />
+                              </svg>
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -154,18 +161,37 @@ export const WatchlistPage = () => {
                   {watchlist.items.length === 0 ? (
                     <p className="text-gray-500">No items in this list</p>
                   ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
                       {watchlist.items.map((item) => (
                         <div key={item.id} className="relative group">
-                          <MediaCard item={item} showType={true} />
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MediaCard 
+                            item={item as unknown as MovieResult | TvResult} 
+                            showType={true} 
+                            size="small" 
+                          />
+                          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="destructive"
-                              size="icon"
-                              className="w-8 h-8"
-                              onClick={() => removeFromCustomWatchlist(watchlist.id, item.id)}
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFromCustomWatchlist(watchlist.id, item.id);
+                              }}
                             >
-                              <X className="w-4 h-4" />
+                              <span className="sr-only">Remove from watchlist</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-3 w-3"
+                              >
+                                <path d="M18 6L6 18M6 6l12 12" />
+                              </svg>
                             </Button>
                           </div>
                         </div>

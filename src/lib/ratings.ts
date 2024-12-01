@@ -10,28 +10,31 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-export async function rateMedia(
-  userId: string,
-  mediaId: number,
-  mediaType: 'movie' | 'tv',
-  rating: number
-) {
-  const ratingRef = doc(db, `users/${userId}/ratings/${mediaId}`);
-  await setDoc(ratingRef, {
-    mediaId,
-    mediaType,
-    rating,
-    ratedAt: serverTimestamp(),
-  });
+interface Rating {
+  mediaId: number;
+  mediaType: 'movie' | 'tv';
+  rating: number;
+  title: string;
+  posterPath: string | null;
+  voteAverage: number;
+  releaseDate: string;
+  ratedAt: Date;
 }
 
-export async function getUserRating(userId: string, mediaId: number) {
-  const ratingRef = doc(db, `users/${userId}/ratings/${mediaId}`);
-  const docSnap = await getDoc(ratingRef);
-  return docSnap.exists() ? docSnap.data() : null;
-}
+export const addRating = async (userId: string, mediaId: number, rating: Rating) => {
+  // TODO: Implement rating storage logic
+};
 
-export async function getUserRatings(userId: string) {
+export const getRating = async (userId: string, mediaId: number): Promise<number | null> => {
+  // TODO: Implement rating retrieval logic
+  return null;
+};
+
+export const removeRating = async (userId: string, mediaId: number) => {
+  // TODO: Implement rating removal logic
+};
+
+export const getUserRatings = async (userId: string) => {
   const ratingsRef = collection(db, `users/${userId}/ratings`);
   const q = query(ratingsRef, orderBy('ratedAt', 'desc'));
   const querySnapshot = await getDocs(q);
@@ -40,4 +43,4 @@ export async function getUserRatings(userId: string) {
     ...doc.data(),
     id: doc.id,
   }));
-}
+};

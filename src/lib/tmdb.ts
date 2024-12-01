@@ -30,17 +30,17 @@ export async function searchMulti(query: string): Promise<SearchResult[]> {
 
 export async function getTrending(type: 'movie' | 'tv'): Promise<(MovieResult | TvResult)[]> {
   const data = await fetchTMDB<{ results: (MovieResult | TvResult)[] }>(`/trending/${type}/week`);
-  return data.results.map(item => ({ ...item, media_type: type }));
+  return data.results.map(item => ({ ...item, media_type: type } as MovieResult | TvResult));
 }
 
 export async function getPopular(type: 'movie' | 'tv'): Promise<(MovieResult | TvResult)[]> {
   const data = await fetchTMDB<{ results: (MovieResult | TvResult)[] }>(`/${type}/popular`);
-  return data.results.map(item => ({ ...item, media_type: type }));
+  return data.results.map(item => ({ ...item, media_type: type } as MovieResult | TvResult));
 }
 
 export async function getTopRated(type: 'movie' | 'tv'): Promise<(MovieResult | TvResult)[]> {
   const data = await fetchTMDB<{ results: (MovieResult | TvResult)[] }>(`/${type}/top_rated`);
-  return data.results.map(item => ({ ...item, media_type: type }));
+  return data.results.map(item => ({ ...item, media_type: type } as MovieResult | TvResult));
 }
 
 export async function getGenres(): Promise<{ id: number; name: string; }[]> {
