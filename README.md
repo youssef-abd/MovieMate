@@ -6,25 +6,25 @@
 
 ---
 
-## ✨ Why MovieMate?
+##  Why MovieMate?
 
 Managing your movie watchlist shouldn't feel like a chore. **MovieMate** offers a frictionless experience to search for films, track what you've seen, and curate your personal favorites — all in a modern web UI, no login required.
 
 ---
 
-## 💡 Core Features
+##  Core Features
 
-- 🔍 **Search Any Movie** — Powered by TMDB API
-- ✅ **Add to Watched / To Watch** — Track what you’ve seen or plan to
-- ⭐ **Custom Ratings** — Rate movies after watching
-- 🧠 **Average Rating Insights** — Compare your ratings vs global scores
-- 📱 **Fully Responsive** — Works on all devices
-- ⚡ **Fast UX** — Minimal loading time, optimized queries
-- 🧩 **Modular Components** — Clean, reusable React logic
+-  **Search Any Movie** — Powered by TMDB API
+-  **Add to Watched / To Watch** — Track what you’ve seen or plan to
+-  **Custom Ratings** — Rate movies after watching
+-  **Average Rating Insights** — Compare your ratings vs global scores
+-  **Fully Responsive** — Works on all devices
+-  **Fast UX** — Minimal loading time, optimized queries
+-  **Modular Components** — Clean, reusable React logic
 
 ---
 
-## 🧰 Tech Stack
+##  Tech Stack
 
 | Layer      | Technology                 |
 |------------|-----------------------------|
@@ -37,7 +37,7 @@ Managing your movie watchlist shouldn't feel like a chore. **MovieMate** offers 
 
 ---
 
-## 🧠 Architecture Notes
+##  Architecture Notes
 
 - `App.jsx` — main routing + state initialization  
 - `Search.jsx` — TMDB query logic + debounce UX  
@@ -51,7 +51,7 @@ Managing your movie watchlist shouldn't feel like a chore. **MovieMate** offers 
 
 ---
 
-## 📂 File Structure
+##  File Structure
 
 ```bash
 moviemate/
@@ -77,7 +77,7 @@ moviemate/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 1. Clone the repository
 
@@ -101,30 +101,14 @@ VITE_TMDB_KEY=your_api_key_here
 
 ---
 
-## 🧪 Demo
-
-Try the [Live Demo](https://your-live-demo-link.com) 🚀
-
----
-
-## 📈 Possible Improvements
-
-* 📝 User reviews & notes per movie
-* 📦 Backend persistence with Supabase or Firebase
-* 🧑‍🤝‍🧑 Social sharing / friend watchlists
-* 📊 Visual analytics dashboard (genres, runtimes, etc.)
-* 🎯 Recommendation engine using TMDB similar titles
-
----
-
-## 📄 License
+##  License
 
 MIT — [View License](LICENSE)
 
 ---
 
-## 👤 Author
+##  Author
 
 **Youssef Abd**
 Developer passionate about beautiful, performant interfaces.
-[GitHub](https://github.com/YOUR_USERNAME) • [LinkedIn](#) • [Portfolio](#)
+[GitHub](https://github.com/youssef-abd) • [LinkedIn](#) • [Portfolio](#)
